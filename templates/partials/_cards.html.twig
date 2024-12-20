@@ -75,7 +75,7 @@
 								{% endif %}
 								<span class="js-likes">{{ creation.likes | length }}</span>
 							</a>
-							<a href="{{ path('creation.comments', {'id': creation.id}) }}" class="btn btn-link">
+							<a href="{{ path('creation.comments', {'id': creation.id}) }}" class="btn btn-link js-comment">
 								<i class="fas fa-comments"></i>
 								<span class="js-comments">{{ creation.comments | length }}</span>
 							</a>
@@ -122,7 +122,6 @@
 				</div>
 			</div>
 
-
 		{% endfor %}
 	</div>
 {% endblock %}
@@ -134,50 +133,64 @@
 
 	<script>
 		function onClickBtnLike(event) {
-event.preventDefault();
-const url = this.href;
-const spanCount = this.querySelector('span.js-likes');
-const icone = this.querySelector('i');
+			event.preventDefault();
+			const url = this.href;
+			const spanCount = this.querySelector('span.js-likes');
+			const icone = this.querySelector('i');
 
-axios.get(url).then(function (response) {
-spanCount.textContent = response.data.likes;
+			axios.get(url).then(function (response) {
+				spanCount.textContent = response.data.likes;
 
-if (icone.classList.contains('fas')) {
-icone.classList.replace('fas', 'far');
-} else {
-icone.classList.replace('far', 'fas');
-}
-}).catch(function (error) {
-if (error.response.status === 403) {
-window.alert('Vous ne pouvez pas liker une création si vous n\'êtes pas connecté !');
-} else {
-window.alert("Une erreur s'est produite");
-}
-});
-}
+				if (icone.classList.contains('fas')) {
+					icone.classList.replace('fas', 'far');
+				} else {
+					icone.classList.replace('far', 'fas');
+				}
+			}).catch(function (error) {
+				if (error.response.status === 403) {
+					window.alert('Vous ne pouvez pas liker une création si vous n\'êtes pas connecté !');
+				} else {
+					window.alert("Une erreur s'est produite");
+				}
+			});
+		}
 
-document.querySelectorAll('a.js-like').forEach(function (link) {
-link.addEventListener('click', onClickBtnLike);
-});
+		document.querySelectorAll('a.js-like').forEach(function (link) {
+			link.addEventListener('click', onClickBtnLike);
+		});
 
-document.addEventListener('DOMContentLoaded', function () {
-const shareIcons = document.querySelectorAll('.share-icon');
-shareIcons.forEach(icon => {
-icon.addEventListener('click', function (event) {
-event.stopPropagation();
+		function onClickBtnComment(event) {
+			event.preventDefault();
+			const isUserConnected = {{ app.user is not null ? 'true' : 'false' }};
+			
+			if (!isUserConnected) {
+				window.alert('Vous ne pouvez pas commenter une création si vous n\'êtes pas connecté !');
+				return;
+			}
+			
+			window.location.href = this.href;
+		}
 
-const relativeUrl = this.getAttribute('data-share-url');
-const fullUrl = `${
-window.location.origin
-}${relativeUrl}`;
+		document.querySelectorAll('a.js-comment').forEach(function (link) {
+			link.addEventListener('click', onClickBtnComment);
+		});
 
-navigator.clipboard.writeText(fullUrl).then(() => {
-const message = this.nextElementSibling;
-message.classList.add('active');
-setTimeout(() => message.classList.remove('active'), 2000);
-}).catch(err => console.error('Erreur lors de la copie du lien :', err));
-});
-});
-});
+		document.addEventListener('DOMContentLoaded', function () {
+			const shareIcons = document.querySelectorAll('.share-icon');
+			shareIcons.forEach(icon => {
+				icon.addEventListener('click', function (event) {
+					event.stopPropagation();
+
+					const relativeUrl = this.getAttribute('data-share-url');
+					const fullUrl = `${window.location.origin}${relativeUrl}`;
+
+					navigator.clipboard.writeText(fullUrl).then(() => {
+						const message = this.nextElementSibling;
+						message.classList.add('active');
+						setTimeout(() => message.classList.remove('active'), 2000);
+					}).catch(err => console.error('Erreur lors de la copie du lien :', err));
+				});
+			});
+		});
 	</script>
 {% endblock %}
