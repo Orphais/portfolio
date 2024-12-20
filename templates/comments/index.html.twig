@@ -6,6 +6,7 @@
     <div class="container mt-4">
         <h1>Commentaires pour {{ creation.name }}</h1>
 
+        <!-- Formulaire pour ajouter un commentaire -->
         <div class="mb-4">
             {{ form_start(form) }}
                 {{ form_widget(form, {'attr': {'class': 'form-control'}}) }}
@@ -13,6 +14,7 @@
             {{ form_end(form) }}
         </div>
 
+        <!-- Liste des commentaires -->
         <div>
             <h2>Liste des commentaires</h2>
             {% for comment in comments %}
@@ -20,6 +22,18 @@
                     <p><strong>{{ comment.user ? comment.user.getPseudo : 'Anonyme' }}</strong> :</p>
                     <p>{{ comment.contentComment }}</p>
                     <p class="text-muted">Posté le {{ comment.createdAt|date('d/m/Y') }}</p>
+
+                    <!-- Bouton de suppression visible seulement pour le propriétaire -->
+                    {% if comment.user == app.user %}
+                        <form 
+                            action="{{ path('comment_delete', { id: comment.id }) }}" 
+                            method="post" 
+                            onsubmit="return confirm('Voulez-vous vraiment supprimer ce commentaire ?');" 
+                            class="mt-2">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    {% endif %}
                 </div>
             {% else %}
                 <p>Aucun commentaire pour cette création.</p>
