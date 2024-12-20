@@ -6,7 +6,6 @@
     <div class="container mt-4">
         <h1>Commentaires pour {{ creation.name }}</h1>
 
-        <!-- Formulaire pour ajouter un commentaire -->
         <div class="mb-4">
             {{ form_start(form) }}
                 {{ form_widget(form, {'attr': {'class': 'form-control'}}) }}
@@ -14,7 +13,6 @@
             {{ form_end(form) }}
         </div>
 
-        <!-- Liste des commentaires -->
         <div>
             <h2>Liste des commentaires</h2>
             {% for comment in comments %}
@@ -23,7 +21,6 @@
                     <p>{{ comment.contentComment }}</p>
                     <p class="text-muted">Posté le {{ comment.createdAt|date('d/m/Y') }}</p>
 
-                    <!-- Bouton de suppression visible seulement pour le propriétaire -->
                     {% if comment.user == app.user %}
                         <form 
                             action="{{ path('comment_delete', { id: comment.id }) }}" 
