@@ -13,7 +13,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -62,29 +61,37 @@ class ContactCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $archiveAction = Action::new('archive', 'Archiver')
-            ->linkToCrudAction('archiveMessage')
+        $toggleArchiveAction = Action::new('toggleArchive', 'Changer état')
+            ->linkToCrudAction('toggleArchiveMessage')
             ->setCssClass('btn btn-link')
-            ->setIcon(null);
+            ->setIcon(null)
+            ->displayIf(function ($entity) {
+                return $entity instanceof Contact;
+            });
 
         return $actions
             ->disable(Action::NEW, Action::EDIT)
             ->update(Crud::PAGE_INDEX, Action::DELETE, function (Action $action) {
                 return $action;
             })
-            ->add(Crud::PAGE_INDEX, $archiveAction)
-            ->add(Crud::PAGE_DETAIL, $archiveAction)
+            ->add(Crud::PAGE_INDEX, $toggleArchiveAction)
+            ->add(Crud::PAGE_DETAIL, $toggleArchiveAction)
             ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
-
-    public function archiveMessage(AdminContext $context): RedirectResponse
+    public function toggleArchiveMessage(AdminContext $context): RedirectResponse
     {
         $entity = $context->getEntity()->getInstance();
 
         if ($entity instanceof Contact) {
-            $entity->setArchived(true);
+            $entity->setArchived(!$entity->isArchived());
             $this->doctrine->getManager()->flush();
+
+            $message = $entity->isArchived()
+                ? 'Message archivé avec succès !'
+                : 'Message désarchivé avec succès !';
+
+            $this->addFlash('success', $message);
         }
 
         return $this->redirectToRoute('admin', [
@@ -95,8 +102,7 @@ class ContactCrudController extends AbstractCrudController
 
     public function configureFilters(Filters $filters): Filters
     {
-        return $filters
-            ->add('archived');
+        return $filters->add('archived');
     }
 
     public function createIndexQueryBuilder(
@@ -105,7 +111,11 @@ class ContactCrudController extends AbstractCrudController
         FieldCollection $fields,
         FilterCollection $filters
     ): QueryBuilder {
-        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
-        return $qb;
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        $queryBuilder->addOrderBy('entity.archived', 'ASC');
+        $queryBuilder->addOrderBy('entity.createdAt', 'DESC');
+
+        return $queryBuilder;
     }
 }

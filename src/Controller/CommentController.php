@@ -88,13 +88,11 @@ class CommentController extends AbstractController
             throw $this->createNotFoundException('Création non trouvée.');
         }
 
-        $allComments = $entityManager->getRepository(Comment::class)->findBy(['creation' => $creation]);
-
-        $currentUser = $this->getUser();
-        $comments = array_merge(
-            array_filter($allComments, fn($comment) => $comment->getUser() === $currentUser),
-            array_filter($allComments, fn($comment) => $comment->getUser() !== $currentUser)
-        );
+        $comments = $entityManager->getRepository(Comment::class)
+            ->findBy(
+                ['creation' => $creationId],
+                ['createdAt' => 'DESC']
+            );
 
         return $this->render('comment/index.html.twig', [
             'comments' => $comments,

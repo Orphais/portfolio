@@ -46,12 +46,18 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Gestion des utilisateurs');
         yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-circle-user', User::class);
         yield MenuItem::linkToCrud('Historiques pseudonymes', 'fas fa-history', UsernameHistory::class);
+
+        yield MenuItem::section('Demandes de contact');
         yield MenuItem::linkToCrud('Messages', 'fa fa-envelope', Contact::class);
 
 
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Creations', 'fas fa-image', Creation::class)
+<<<<<<< HEAD
            ->setController(CreationCrudController::class);
+=======
+            ->setController(CreationCrudController::class);
+>>>>>>> 570b96c3eb664df4cbb55df0a052d1362ee0b0a9
         yield MenuItem::linkToCrud('Commentaires', 'fas fa-comment', Comment::class);
         yield MenuItem::linkToCrud('Categories', 'fas fa-list', Category::class);
         yield MenuItem::linkToCrud('Outils', 'fas fa-pencil', Tool::class);
@@ -59,6 +65,9 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Statistiques');
         yield MenuItem::linkToCrud('Statistiques des créations', 'fa fa-chart-bar', Creation::class)
             ->setController(StatCrudController::class);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 570b96c3eb664df4cbb55df0a052d1362ee0b0a9
     }
 }
