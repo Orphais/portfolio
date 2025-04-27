@@ -46,7 +46,7 @@ class CreationCrudController extends AbstractCrudController
         $fields = [
             TextField::new('Name', 'Nom')
                 ->setSortable(true),
-            
+
             TextEditorField::new('Description')
                 ->setFormType(CKEditorType::class)
                 ->setFormTypeOptions([
@@ -61,12 +61,12 @@ class CreationCrudController extends AbstractCrudController
             ImageField::new('image', "Image")
                 ->onlyOnForms()
                 ->setUploadDir('public/images')
-                ->setBasePath('public/images')
+                ->setBasePath('images')
                 ->setUploadedFileNamePattern('[year]-[month]-[day]-[uuid].[extension]')
                 ->setFormTypeOption('multiple', true),
 
             ImageField::new('image', 'Image')
-                ->setBasePath('/images')
+                ->setBasePath('images')
                 ->hideOnForm()
                 ->setSortable(false),
 
@@ -82,7 +82,7 @@ class CreationCrudController extends AbstractCrudController
         if ($pageName !== Crud::PAGE_DETAIL) {
             $fields[] = AssociationField::new('Tool', 'Outils')
                 ->setSortable(true);
-            
+
             $fields[] = AssociationField::new('category', 'Catégories')
                 ->setSortable(true);
         }
@@ -94,7 +94,7 @@ class CreationCrudController extends AbstractCrudController
                         return 'Aucun outil';
                     }
                     return implode(', ', array_map(fn($tool) => $tool->getName(), $tools->toArray()));
-            });
+                });
 
             $fields[] = AssociationField::new('category', 'Catégories associées')
                 ->formatValue(function ($categories) {
@@ -102,29 +102,29 @@ class CreationCrudController extends AbstractCrudController
                         return 'Aucune catégorie';
                     }
                     return implode(', ', array_map(fn($category) => $category->getName(), $categories->toArray()));
-            });
+                });
 
             $fields[] = AssociationField::new('likes', 'Nombre de likes')
-            ->formatValue(function ($likes) {
-                return $likes instanceof \Doctrine\Common\Collections\Collection ? $likes->count() : 0;
-            });
+                ->formatValue(function ($likes) {
+                    return $likes instanceof \Doctrine\Common\Collections\Collection ? $likes->count() : 0;
+                });
 
             $fields[] = ArrayField::new('comments', 'Commentaires associés')
-            ->formatValue(function ($comments) {
-                if ($comments === null || count($comments) === 0) {
-                    return 'Aucun commentaire';
-                }
-                return implode("\n", array_map(function ($comment) {
-                    return $comment instanceof Comment ? $comment->getContentComment() : 'Commentaire invalide';
-                }, $comments->toArray()));
-            });
+                ->formatValue(function ($comments) {
+                    if ($comments === null || count($comments) === 0) {
+                        return 'Aucun commentaire';
+                    }
+                    return implode("\n", array_map(function ($comment) {
+                        return $comment instanceof Comment ? $comment->getContentComment() : 'Commentaire invalide';
+                    }, $comments->toArray()));
+                });
         }
 
-        $fields[]= DateTimeField::new('updatedAt', 'Date de création')
-        ->setSortable(true)
-        ->formatValue(function ($value, $entity) {
-            return $value instanceof \DateTimeInterface ? $value->format('d/m/Y') : '';
-        });
+        $fields[] = DateTimeField::new('updatedAt', 'Date de création')
+            ->setSortable(true)
+            ->formatValue(function ($value, $entity) {
+                return $value instanceof \DateTimeInterface ? $value->format('d/m/Y') : '';
+            });
 
         return $fields;
     }
@@ -142,8 +142,8 @@ class CreationCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('Tool', 'Outil')  
+            ->add('Tool', 'Outil')
             ->add('category', 'Catégorie')
-            ->add('isPublic', 'Publique');  
+            ->add('isPublic', 'Publique');
     }
 }

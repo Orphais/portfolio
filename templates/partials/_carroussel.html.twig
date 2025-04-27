@@ -59,12 +59,12 @@
 </style>
 
 
-<div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+<div id="carouselExample-{{ creation.id }}" class="carousel slide" data-bs-ride="carousel">
 	<div class="carousel-inner">
 		{% for image in creation.image %}
 			<div class="carousel-item {% if loop.first %}active{% endif %}">
 				<div class="carousel-image-container">
-					<img src="/images/{{ image }}" class="d-block w-100" alt="...">
+					<img src="{{ asset('images/' ~ image) }}" class="d-block w-100" alt="...">
 					<button class="fullscreen-icon" onclick="toggleFullscreen(this)">⛶</button>
 				</div>
 			</div>
@@ -73,7 +73,7 @@
 
 	<div class="carousel-thumbnails">
 		{% for image in creation.image %}
-			<img src="/images/{{ image }}" class="img-thumbnail" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}" alt="...">
+			<img src="{{ asset('images/' ~ image) }}" class="img-thumbnail" data-bs-target="#carouselExample-{{ creation.id }}" data-bs-slide-to="{{ loop.index0 }}" alt="...">
 		{% endfor %}
 	</div>
 </div>
@@ -99,4 +99,16 @@ document.msExitFullscreen();
 }
 }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+const carousels = document.querySelectorAll('.carousel');
+carousels.forEach(carousel => {
+const bsCarousel = new bootstrap.Carousel(carousel, {
+interval: 5000,
+ride: true
+});
+// Force le démarrage du carousel
+bsCarousel.cycle();
+});
+});
 </script>

@@ -16,7 +16,7 @@
 
 		.left-side {
 			flex: 1;
-			background: url('/images/2024-12-13-72f878a2-a5e2-4891-b30e-e599efedfda1.avif') no-repeat center center;
+			background: url('{{ asset('images/sliverqueen.jpg') }}') no-repeat center center;
 			background-size: cover;
 			min-height: 300px;
 			background-position: center top;
@@ -155,20 +155,20 @@
 
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-		const text = "Bienvenue sur mon Portfolio";
-		const element = document.getElementById('typed-text');
-		let index = 0;
+const text = "Bienvenue sur mon Portfolio";
+const element = document.getElementById('typed-text');
+let index = 0;
 
-		function AfficheTitre() {
-			if (index < text.length) {
-				element.textContent += text.charAt(index);
-				index++;
-			setTimeout(AfficheTitre, 100);
-			}
-		}
+function AfficheTitre() {
+if (index < text.length) {
+element.textContent += text.charAt(index);
+index++;
+setTimeout(AfficheTitre, 100);
+}
+}
 
-	AfficheTitre();
-	});
+AfficheTitre();
+});
 	</script>
 
 {% endblock %}

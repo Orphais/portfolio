@@ -1,5 +1,10 @@
 {% block style_cards %}
 	<style>
+		.container-fluid {
+			max-width: 96%;
+			margin: 0 auto;
+		}
+
 		.hover-card {
 			transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 			border-radius: 20px;
@@ -169,117 +174,119 @@
 
 
 {% block content_cards %}
-	<div class="row row-cols-1 row-cols-md-3 g-4 mx-4">
-		{% for creation in creations %}
-			<div class="col">
-				<div class="card h-100 hover-card" style="border-radius: 30px;">
-					<img src="/images/{{ creation.image[0] }}" class="card-img-top" style="border-radius: 30px 30px 0 0;" alt="{{ creation.name }}" data-bs-toggle="modal" data-bs-target="#creationModal-{{ creation.id }}">
-					<div class="card-body">
-						<h5 class="card-title">{{ creation.name }}</h5>
-					</div>
-					<div class="card-footer text-end">
-						<div class="like share">
-							<a href="{{ path('creation.like', { 'id': creation.id }) }}" class="btn btn-link js-like">
-								{% if app.user and creation.isLikedByUser(app.user) %}
-									<i class="fas fa-heart liked"></i>
-								{% else %}
-									<i class="far fa-heart"></i>
-								{% endif %}
-								<span class="js-likes">{{ creation.likes | length }}</span>
-							</a>
-							<a href="#" class="btn btn-link js-comment" data-bs-toggle="modal" data-bs-target="#creationModal-{{ creation.id }}">
-								<i class="fas fa-comments"></i>
-								<span class="js-comments">{{ creation.comments | length }}</span>
-							</a>
-							<span class="share-icon" data-share-url="{{ path('creation_show', {'id': creation.id}) }}" title="Partager">
-								<i class="fas fa-share"></i>
-							</span>
-							<span class="copied-message">Lien copié !</span>
+	<div class="container-fluid">
+		<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mx-4">
+			{% for creation in creations %}
+				<div class="col">
+					<div class="card h-100 hover-card" style="border-radius: 30px;">
+						<img src="{{ asset('images/' ~ creation.image[0]) }}" class="card-img-top" style="border-radius: 30px 30px 0 0;" alt="{{ creation.name }}" data-bs-toggle="modal" data-bs-target="#creationModal-{{ creation.id }}">
+						<div class="card-body">
+							<h5 class="card-title">{{ creation.name }}</h5>
+						</div>
+						<div class="card-footer text-end">
+							<div class="like share">
+								<a href="{{ path('creation.like', { 'id': creation.id }) }}" class="btn btn-link js-like">
+									{% if app.user and creation.isLikedByUser(app.user) %}
+										<i class="fas fa-heart liked"></i>
+									{% else %}
+										<i class="far fa-heart"></i>
+									{% endif %}
+									<span class="js-likes">{{ creation.likes | length }}</span>
+								</a>
+								<a href="#" class="btn btn-link js-comment" data-bs-toggle="modal" data-bs-target="#creationModal-{{ creation.id }}">
+									<i class="fas fa-comments"></i>
+									<span class="js-comments">{{ creation.comments | length }}</span>
+								</a>
+								<span class="share-icon" data-share-url="{{ path('creation_show', {'id': creation.id}) }}" title="Partager">
+									<i class="fas fa-share"></i>
+								</span>
+								<span class="copied-message">Lien copié !</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="modal fade" id="creationModal-{{ creation.id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-				<div class="modal-dialog modal-dialog-centered modal-lg" style="border-radius: 15px; overflow: hidden;">
-					<div class="modal-content">
-						<div class="modal-body">
-							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="right: 40px;"></button>
-							<div class="row">
-								<div class="col-md-6 col-12">
-									{% block carroussel %}
-										{% include "partials/_carroussel.html.twig" %}
-									{% endblock %}
-								</div>
+				<div class="modal fade" id="creationModal-{{ creation.id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+					<div class="modal-dialog modal-dialog-centered modal-lg" style="border-radius: 15px; overflow: hidden;">
+						<div class="modal-content">
+							<div class="modal-body">
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="right: 40px;"></button>
+								<div class="row">
+									<div class="col-md-6 col-12">
+										{% block carroussel %}
+											{% include "partials/_carroussel.html.twig" %}
+										{% endblock %}
+									</div>
 
-								<div class="col-md-6">
-									<div class="content-section">
-										<h5 class="modal-title">{{ creation.name }}</h5>
-										<p>{{ creation.description }}</p>
-										<p>
-											<strong>Outils utilisés :</strong>
-										</p>
-										<ul>
-											{% for tool in creation.Tool %}
-												{% if tool.reference != null %}
-													<li>
-														<a href="{{ tool.reference }}">
-															{{ tool.name }}</a>
-														{% if tool.description != null %}
-															-
-															{{ tool.description }}
-														{% endif %}
-													</li>
-												{% else %}
-													<li>
-														{{ tool.name }}
-														{% if tool.description != null %}
-															-
-															{{ tool.description }}
-														{% endif %}
-													</li>
-												{% endif %}
-											{% endfor %}
-										</ul>
-										<p>
-											<strong>Catégories :</strong>
-										</p>
-										<ul>
-											{% for category in creation.category %}
-												<li>{{ category.name }}</li>
-											{% endfor %}
-										</ul>
-										<h3>Commentaires :</h3>
-										<div>
-											{% if app.user %}
-												<form action="{{ path('comment_add', { creationId: creation.id }) }}" method="post" class="comment-form" id="comment-form-{{ creation.id }}">
-													<textarea name="contentComment" class="form-control" rows="4" placeholder="Écrivez votre commentaire ici..." required></textarea>
-													<button type="submit" class="btn btn-primary mt-3">Envoyer</button>
-												</form>
-											{% else %}
-												<p class="text-muted">Connectez-vous pour commenter.</p>
-											{% endif %}
-										</div>
-
-										<div id="comments-list-{{ creation.id }}">
-											{% for comment in creation.comments|sort((a, b) => b.createdAt <=> a.createdAt) %}
-												<div class="mb-3 p-3 border rounded" id="comment-{{ comment.id }}">
-													<p>
-														<strong>{{ comment.user ? comment.user.getPseudo : 'Anonyme' }}</strong>
-														:</p>
-													<p>{{ comment.contentComment }}</p>
-													<p class="text-muted">Posté le
-														{{ comment.createdAt|date('d/m/Y') }}</p>
-													{% if comment.user == app.user %}
-														<form action="{{ path('comment_delete', { id: comment.id }) }}" method="post" class="mt-2 delete-comment-form" data-comment-id="{{ comment.id }}">
-															<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
-															<button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-														</form>
+									<div class="col-md-6">
+										<div class="content-section">
+											<h5 class="modal-title">{{ creation.name }}</h5>
+											<p>{{ creation.description }}</p>
+											<p>
+												<strong>Outils utilisés :</strong>
+											</p>
+											<ul>
+												{% for tool in creation.Tool %}
+													{% if tool.reference != null %}
+														<li>
+															<a href="{{ tool.reference }}">
+																{{ tool.name }}</a>
+															{% if tool.description != null %}
+																-
+																{{ tool.description }}
+															{% endif %}
+														</li>
+													{% else %}
+														<li>
+															{{ tool.name }}
+															{% if tool.description != null %}
+																-
+																{{ tool.description }}
+															{% endif %}
+														</li>
 													{% endif %}
-												</div>
-											{% else %}
-												<p>Aucun commentaire pour cette création.</p>
-											{% endfor %}
+												{% endfor %}
+											</ul>
+											<p>
+												<strong>Catégories :</strong>
+											</p>
+											<ul>
+												{% for category in creation.category %}
+													<li>{{ category.name }}</li>
+												{% endfor %}
+											</ul>
+											<h3>Commentaires :</h3>
+											<div>
+												{% if app.user %}
+													<form action="{{ path('comment_add', { creationId: creation.id }) }}" method="post" class="comment-form" id="comment-form-{{ creation.id }}">
+														<textarea name="contentComment" class="form-control" rows="4" placeholder="Écrivez votre commentaire ici..." required></textarea>
+														<button type="submit" class="btn btn-primary mt-3">Envoyer</button>
+													</form>
+												{% else %}
+													<p class="text-muted">Connectez-vous pour commenter.</p>
+												{% endif %}
+											</div>
+
+											<div id="comments-list-{{ creation.id }}">
+												{% for comment in creation.comments|sort((a, b) => b.createdAt <=> a.createdAt) %}
+													<div class="mb-3 p-3 border rounded" id="comment-{{ comment.id }}">
+														<p>
+															<strong>{{ comment.user ? comment.user.getPseudo : 'Anonyme' }}</strong>
+															:</p>
+														<p>{{ comment.contentComment }}</p>
+														<p class="text-muted">Posté le
+															{{ comment.createdAt|date('d/m/Y') }}</p>
+														{% if comment.user == app.user %}
+															<form action="{{ path('comment_delete', { id: comment.id }) }}" method="post" class="mt-2 delete-comment-form" data-comment-id="{{ comment.id }}">
+																<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+																<button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+															</form>
+														{% endif %}
+													</div>
+												{% else %}
+													<p>Aucun commentaire pour cette création.</p>
+												{% endfor %}
+											</div>
 										</div>
 									</div>
 								</div>
@@ -287,8 +294,8 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		{% endfor %}
+			{% endfor %}
+		</div>
 	</div>
 {% endblock %}
 {% block javascripts %}
